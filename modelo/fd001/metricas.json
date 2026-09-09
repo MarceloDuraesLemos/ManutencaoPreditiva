@@ -1,0 +1,8 @@
+{
+    "dataset": "FD001",
+    "rul_target": "linear",
+    "mae_validacao": 17.347177505493164,
+    "rmse_validacao": 24.281307814442112,
+    "mae_teste": 16.838390350341797,
+    "rmse_teste": 23.350851549063606
+}

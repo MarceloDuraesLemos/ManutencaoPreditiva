@@ -1,0 +1,9 @@
+{
+    "dataset": "FD001",
+    "quantidade_motores": 100,
+    "mae": 11.122966451644897,
+    "rmse": 15.079289536529215,
+    "erro_medio_assinado": 1.142807550430298,
+    "erro_mediano_absoluto": 7.585784912109375,
+    "observacao": "RUL previsto pelo pipeline integrado comparado ao RUL real oficial do test_FD001."
+}

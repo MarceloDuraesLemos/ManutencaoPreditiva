@@ -1,0 +1,10 @@
+{
+    "dataset": "FD001",
+    "regras_testadas": {
+        "P1_IMEDIATA": "health < 30 OU RUL <= 15",
+        "P2_ALTA": "health < 60 OU RUL <= 45",
+        "P3_MEDIA": "health < 80 OU RUL <= 90",
+        "P4_BAIXA": "demais casos"
+    },
+    "observacao": "Regras ainda em fase de validacao. A prioridade definitiva deve ser congelada somente apos analise da distribuicao."
+}

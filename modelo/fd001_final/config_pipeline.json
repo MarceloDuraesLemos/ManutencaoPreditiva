@@ -1,0 +1,94 @@
+{
+    "dataset": "FD001",
+    "versao_pipeline": "1.0",
+
+    "rul": {
+        "modelo_path": "modelo/fd001_capped125/modelo_rul_convertido.keras",
+        "scaler_path": "modelo/fd001_capped125/scaler.pkl",
+        "config_path": "modelo/fd001_capped125/config.json",
+        "tipo_modelo": "LSTM",
+        "window_size": 30,
+        "rul_cap": 125,
+        "sensores": [
+            "sensor_2",
+            "sensor_3",
+            "sensor_4",
+            "sensor_7",
+            "sensor_8",
+            "sensor_9",
+            "sensor_11",
+            "sensor_12",
+            "sensor_13",
+            "sensor_14",
+            "sensor_15",
+            "sensor_17",
+            "sensor_20",
+            "sensor_21"
+        ]
+    },
+
+    "anomalia": {
+        "modelo_path": "modelo/fd001_anomalia/modelo_autoencoder_convertido.keras",
+        "scaler_path": "modelo/fd001_anomalia/scaler.pkl",
+        "config_path": "modelo/fd001_anomalia/config.json",
+        "tipo_modelo": "LSTM Autoencoder",
+        "window_size": 30,
+        "threshold": 0.011142558883875608
+    },
+
+    "anomaly_score": {
+        "referencia_zero": 0.010024391,
+        "referencia_threshold": 0.011142559,
+        "referencia_maxima": 0.10509536660000006,
+        "score_zero": 0,
+        "score_threshold": 50,
+        "score_maximo": 100
+    },
+
+    "trend": {
+        "horizonte": 10,
+        "metodo": "regressao_linear_erro_reconstrucao_x_ciclo",
+        "referencia_zero": 2.538272727270642e-07,
+        "referencia_maxima": 0.00014014275884841501
+    },
+
+    "health_score": {
+        "peso_rul": 0.60,
+        "peso_anomalia": 0.25,
+        "peso_trend": 0.15,
+        "formula": "0.60*rul_score + 0.25*(100-anomaly_score) + 0.15*(100-trend_score)"
+    },
+
+    "health_status": {
+        "saudavel_min": 80,
+        "atencao_min": 60,
+        "risco_min": 30
+    },
+
+    "priority_score": {
+        "peso_health_risk": 0.30,
+        "peso_rul_risk": 0.70,
+        "formula": "0.30*(100-health_score) + 0.70*(100-rul_score)"
+    },
+
+    "priority_classes": {
+        "p3_min": 20,
+        "p2_min": 45,
+        "p1_min": 75
+    },
+
+    "interpretacao": {
+        "health_score": "0 = pior condicao; 100 = melhor condicao",
+        "priority_score": "0 = baixa urgencia; 100 = urgencia maxima",
+        "rul": "RUL estimado em ciclos com base no modelo LSTM treinado no FD001",
+        "anomalia": "Desvio do comportamento dos sensores em relacao ao padrao saudavel aprendido"
+    },
+
+    "observacoes": [
+        "O pipeline final deve utilizar RUL previsto pelo modelo, nunca RUL_linear verdadeiro.",
+        "O RUL_linear foi utilizado somente nas etapas de desenvolvimento e validacao.",
+        "O dataset FD001 possui um unico modo de falha relacionado a degradacao HPC.",
+        "Nao interpretar ciclos do FD001 diretamente como horas ou dias.",
+        "O modelo de anomalia recebe somente dados dos sensores em inferencia."
+    ]
+}

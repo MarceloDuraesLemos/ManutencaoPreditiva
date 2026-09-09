@@ -1,0 +1,35 @@
+{
+    "dataset": "FD001",
+    "priority_score": {
+        "formula": "0.30 * health_risk + 0.70 * rul_risk",
+        "direcao": "0 = baixa urgencia; 100 = urgencia maxima"
+    },
+    "classes_testadas": {
+        "A_20_50_80": {
+            "p3": 20,
+            "p2": 50,
+            "p1": 80
+        },
+        "B_15_45_75": {
+            "p3": 15,
+            "p2": 45,
+            "p1": 75
+        },
+        "C_20_45_75": {
+            "p3": 20,
+            "p2": 45,
+            "p1": 75
+        },
+        "D_25_50_75": {
+            "p3": 25,
+            "p2": 50,
+            "p1": 75
+        },
+        "E_20_50_75": {
+            "p3": 20,
+            "p2": 50,
+            "p1": 75
+        }
+    },
+    "observacao": "Os limites de P1/P2/P3/P4 ainda nao estao congelados. O ranking automatico serve apenas como apoio para a decisao final."
+}

@@ -1,0 +1,15 @@
+{
+    "dataset": "FD001",
+    "fonte": "slope do erro de reconstrucao do LSTM Autoencoder",
+    "horizonte": 10,
+    "metodo_slope": "regressao linear erro_reconstrucao x ciclo",
+    "calibracao_score": {
+        "score_min": 0,
+        "score_max": 100,
+        "referencia_zero": 2.538272727270642e-07,
+        "referencia_maxima": 0.00014014275884841501,
+        "referencia_zero_metodo": "mediana dos slopes com RUL_linear > 125",
+        "referencia_maxima_metodo": "percentil 99 dos slopes com RUL_linear > 125"
+    },
+    "observacao": "RUL foi utilizado apenas durante a calibracao experimental do score. Em inferencia, o Trend Score depende do slope calculado a partir do erro de reconstrucao do Autoencoder."
+}

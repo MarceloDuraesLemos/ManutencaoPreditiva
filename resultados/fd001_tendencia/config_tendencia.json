@@ -1,0 +1,16 @@
+{
+    "dataset": "FD001",
+    "fonte": "erro de reconstrucao do LSTM Autoencoder",
+    "metodo": "regressao linear erro_reconstrucao x ciclo",
+    "horizontes_testados": [
+        5,
+        10,
+        20
+    ],
+    "criterios_avaliados": [
+        "slope_medio",
+        "slope_mediano",
+        "taxa_tendencia_positiva"
+    ],
+    "observacao": "O horizonte definitivo ainda nao foi selecionado. A escolha sera feita apos analise dos resultados."
+}

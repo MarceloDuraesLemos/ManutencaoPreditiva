@@ -1,0 +1,29 @@
+{
+    "dataset": "FD001",
+    "tipo_modelo": "LSTM Autoencoder",
+    "objetivo": "deteccao_anomalia",
+    "window_size": 30,
+    "sensores": [
+        "sensor_2",
+        "sensor_3",
+        "sensor_4",
+        "sensor_7",
+        "sensor_8",
+        "sensor_9",
+        "sensor_11",
+        "sensor_12",
+        "sensor_13",
+        "sensor_14",
+        "sensor_15",
+        "sensor_17",
+        "sensor_20",
+        "sensor_21"
+    ],
+    "quantidade_sensores": 14,
+    "random_seed": 42,
+    "proxy_saudavel": "RUL_linear > 125",
+    "rul_saudavel_min": 125,
+    "percentil_threshold": 95,
+    "threshold": 0.011142558883875608,
+    "observacao": "RUL foi utilizado apenas para definir a regiao proxy de funcionamento saudavel durante o desenvolvimento. O modelo de anomalia recebe apenas sensores."
+}

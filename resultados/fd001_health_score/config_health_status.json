@@ -1,0 +1,28 @@
+{
+    "dataset": "FD001",
+    "health_score_config": "D_60_25_15",
+    "pesos": {
+        "rul": 0.6,
+        "anomalia": 0.25,
+        "trend": 0.15
+    },
+    "status_testados": {
+        "SAUDAVEL": {
+            "min": 80,
+            "max": 100
+        },
+        "ATENCAO": {
+            "min": 60,
+            "max": 80
+        },
+        "RISCO": {
+            "min": 30,
+            "max": 60
+        },
+        "CRITICO": {
+            "min": 0,
+            "max": 30
+        }
+    },
+    "observacao": "Limites ainda em fase de validacao. Devem ser congelados somente apos analise da distribuicao por faixa de RUL."
+}

@@ -1,0 +1,9 @@
+{
+    "threshold": 0.011142558883875608,
+    "erro_medio_treino_saudavel": 0.009832407347857952,
+    "erro_mediano_treino_saudavel": 0.009800486266613007,
+    "erro_medio_validacao_saudavel": 0.01008706446737051,
+    "erro_mediano_validacao_saudavel": 0.010024391114711761,
+    "ultima_loss_treino": 0.00982268899679184,
+    "ultima_loss_validacao": 0.010087063536047935
+}

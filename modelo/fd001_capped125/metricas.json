@@ -1,0 +1,9 @@
+{
+    "dataset": "FD001",
+    "rul_target": "capped",
+    "rul_cap": 125,
+    "mae_validacao": 8.618478775024414,
+    "rmse_validacao": 11.92123055372385,
+    "mae_teste": 11.143047332763672,
+    "rmse_teste": 15.104651011451221
+}

@@ -1,0 +1,42 @@
+{
+    "dataset": "FD001",
+    "rul_referencia": 125.0,
+    "rul_score": "clip(RUL_linear / 125 * 100, 0, 100)",
+    "saude_anomalia": "100 - anomaly_score",
+    "saude_trend": "100 - trend_score",
+    "formula": "Health = peso_rul * rul_score + peso_anomalia * saude_anomalia + peso_trend * saude_trend",
+    "configuracoes_testadas": {
+        "A_50_30_20": {
+            "rul": 0.5,
+            "anomalia": 0.3,
+            "trend": 0.2
+        },
+        "B_40_40_20": {
+            "rul": 0.4,
+            "anomalia": 0.4,
+            "trend": 0.2
+        },
+        "C_50_25_25": {
+            "rul": 0.5,
+            "anomalia": 0.25,
+            "trend": 0.25
+        },
+        "D_60_25_15": {
+            "rul": 0.6,
+            "anomalia": 0.25,
+            "trend": 0.15
+        },
+        "E_40_35_25": {
+            "rul": 0.4,
+            "anomalia": 0.35,
+            "trend": 0.25
+        }
+    },
+    "criterios_selecao": [
+        "monotonia da mediana",
+        "monotonia da media",
+        "menor separacao mediana entre faixas",
+        "queda mediana total"
+    ],
+    "observacao": "A selecao automatica e apenas um criterio experimental. A configuracao definitiva deve ser analisada antes de ser congelada."
+}

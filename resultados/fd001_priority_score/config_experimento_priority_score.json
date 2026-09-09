@@ -1,0 +1,36 @@
+{
+    "dataset": "FD001",
+    "rul_referencia": 125.0,
+    "health_risk": "100 - health_score",
+    "rul_risk": "100 - clip(RUL_linear / 125 * 100, 0, 100)",
+    "formula": "Priority = peso_health_risk * health_risk + peso_rul_risk * rul_risk",
+    "configuracoes_testadas": {
+        "A_50_50": {
+            "health_risk": 0.5,
+            "rul_risk": 0.5
+        },
+        "B_60_40": {
+            "health_risk": 0.6,
+            "rul_risk": 0.4
+        },
+        "C_40_60": {
+            "health_risk": 0.4,
+            "rul_risk": 0.6
+        },
+        "D_70_30": {
+            "health_risk": 0.7,
+            "rul_risk": 0.3
+        },
+        "E_30_70": {
+            "health_risk": 0.3,
+            "rul_risk": 0.7
+        }
+    },
+    "criterios_selecao": [
+        "monotonia da mediana",
+        "monotonia da media",
+        "menor separacao mediana entre faixas",
+        "crescimento mediano total"
+    ],
+    "observacao": "Priority Score representa urgencia operacional. 0 significa baixa urgencia e 100 significa urgencia maxima."
+}

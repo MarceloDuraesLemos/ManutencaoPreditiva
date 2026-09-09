@@ -1,0 +1,21 @@
+{
+    "dataset": "FD001",
+    "fonte": "erro de reconstrucao do LSTM Autoencoder",
+    "score_min": 0,
+    "score_threshold": 50,
+    "score_max": 100,
+    "calibracao": {
+        "referencia_zero": 0.010024391,
+        "referencia_zero_metodo": "mediana dos erros com RUL_linear > 125",
+        "referencia_threshold": 0.011142559,
+        "referencia_threshold_metodo": "percentil 95 dos erros com RUL_linear > 125",
+        "referencia_maxima": 0.10509536660000006,
+        "referencia_maxima_metodo": "percentil 99 dos erros da validacao completa"
+    },
+    "interpretacao": {
+        "0": "comportamento proximo da mediana saudavel",
+        "50": "limiar estatistico de anomalia",
+        "100": "desvio severo do padrao saudavel"
+    },
+    "observacao": "RUL e utilizado apenas durante a calibracao experimental. Em inferencia, o score depende somente do erro de reconstrucao produzido pelo Autoencoder."
+}
