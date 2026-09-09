@@ -563,7 +563,7 @@ Também confira o tamanho dos arquivos `.keras`. Caso algum arquivo seja grande 
 
 ```bash
 git clone https://github.com/MarceloDuraesLemos/ManutencaoPreditiva.git
-cd "UPX 2.0"
+cd "ManutencaoPreditiva"
 
 py -3.11 -m venv .venv
 .venv\Scripts\activate
