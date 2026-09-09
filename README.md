@@ -4,7 +4,7 @@ Projeto de **manutenção preditiva e prognóstico** desenvolvido em Python e St
 
 A aplicação combina modelos de Machine Learning para estimar **Remaining Useful Life (RUL)**, detectar **anomalias**, acompanhar a **tendência de degradação**, calcular um **Health Score** e gerar uma **prioridade operacional de manutenção** para cada equipamento.
 
-> O módulo atual utiliza motores turbofan simulados do NASA C-MAPSS FD001. Os resultados são experimentais e não devem ser aplicados diretamente a máquinas reais sem treinamento e calibração específicos.
+
 
 ---
 
