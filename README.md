@@ -562,7 +562,7 @@ Também confira o tamanho dos arquivos `.keras`. Caso algum arquivo seja grande 
 ##  Execução rápida no Windows
 
 ```bash
-git clone https://github.com/MarceloDuraesLemos/ManutencaoPreditiva
+git clone https://github.com/MarceloDuraesLemos/ManutencaoPreditiva.git
 cd "UPX 2.0"
 
 py -3.11 -m venv .venv
