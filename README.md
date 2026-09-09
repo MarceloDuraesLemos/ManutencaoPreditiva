@@ -68,7 +68,6 @@ Resultado integrado:
 - **MAE:** aproximadamente `11.123 ciclos`
 - **RMSE:** aproximadamente `15.079 ciclos`
 
-> O conjunto oficial de teste foi utilizado durante o desenvolvimento para comparação entre configurações. Portanto, ele não deve ser descrito como um holdout completamente intocado.
 
 ### 2. Detecção de anomalias
 
@@ -532,32 +531,7 @@ Ranking operacional
 Dashboard Streamlit
 ```
 
----
 
-##  Antes de enviar ao GitHub
-
-Não envie o ambiente virtual para o repositório. Use um `.gitignore` como:
-
-```gitignore
-.venv/
-venv/
-
-__pycache__/
-*.pyc
-*.pyo
-
-.streamlit/secrets.toml
-
-.DS_Store
-Thumbs.db
-
-.vscode/
-.idea/
-```
-
-Também confira o tamanho dos arquivos `.keras`. Caso algum arquivo seja grande demais para o GitHub, considere usar **Git LFS** ou armazenar os modelos separadamente.
-
----
 
 ##  Execução rápida no Windows
 
@@ -593,7 +567,7 @@ streamlit run app/app.py
 
 ##  Contexto acadêmico
 
-Este projeto foi desenvolvido como uma plataforma experimental para estudo e demonstração de técnicas de:
+Este projeto foi desenvolvido como uma plataforma para demonstração de técnicas de:
 
 - manutenção preditiva;
 - prognóstico;
