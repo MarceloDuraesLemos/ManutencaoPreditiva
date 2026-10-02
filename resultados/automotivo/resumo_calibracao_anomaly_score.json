@@ -1,0 +1,47 @@
+{
+    "seed": 42,
+    "validation_fraction": 0.2,
+    "window_size": 30,
+    "features": [
+        "rpm",
+        "speed_kmh",
+        "coolant_temp_c",
+        "engine_load_pct",
+        "throttle_pct",
+        "intake_temp_c",
+        "map_kpa",
+        "battery_voltage"
+    ],
+    "sessoes_totais": 100,
+    "sessoes_treino": 80,
+    "sessoes_validacao": 20,
+    "janelas_validacao": 23180,
+    "erro_minimo": 0.11781535297632217,
+    "erro_medio": 0.22753383219242096,
+    "erro_desvio_padrao": 0.03621835634112358,
+    "percentis": {
+        "50": 0.22488783299922943,
+        "75": 0.25032326579093933,
+        "90": 0.27513352036476135,
+        "95": 0.29115110635757446,
+        "97": 0.30220264196395874,
+        "98": 0.3097861111164093,
+        "99": 0.3237295150756836,
+        "99.5": 0.33489131927490234,
+        "99.9": 0.35949867963790894,
+        "100": 0.39302170276641846
+    },
+    "threshold_original": 0.29115110635757446,
+    "taxa_acima_threshold_pct": 5.0,
+    "verificacao_reproducao": {
+        "mediana_original": 0.22488783299922943,
+        "mediana_recalculada": 0.22488783299922943,
+        "diferenca_mediana": 0.0,
+        "p95_original": 0.29115110635757446,
+        "p95_recalculado": 0.29115110635757446,
+        "diferenca_p95": 0.0,
+        "p99_original": 0.3237295150756836,
+        "p99_recalculado": 0.3237295150756836,
+        "diferenca_p99": 0.0
+    }
+}

@@ -1,0 +1,25 @@
+{
+    "modulo": "automotivo",
+    "tipo_modelo": "LSTM Autoencoder",
+    "objetivo": "deteccao_de_anomalias",
+    "origem_treino": "telemetria_simulada_normal",
+    "window_size": 30,
+    "sampling_interval_seconds": 1,
+    "features": [
+        "rpm",
+        "speed_kmh",
+        "coolant_temp_c",
+        "engine_load_pct",
+        "throttle_pct",
+        "intake_temp_c",
+        "map_kpa",
+        "battery_voltage"
+    ],
+    "seed": 42,
+    "validation_fraction": 0.2,
+    "threshold_method": "P95_reconstruction_error_normal_validation",
+    "threshold": 0.29115110635757446,
+    "median_normal_validation": 0.22488783299922943,
+    "p99_normal_validation": 0.3237295150756836,
+    "observacao": "Modelo demonstrativo treinado com telemetria simulada. Nao representa diagnostico mecanico validado em veiculos reais."
+}

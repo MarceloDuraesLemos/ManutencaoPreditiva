@@ -1,0 +1,7 @@
+{
+    "best_train_loss": 0.22759538888931274,
+    "best_validation_loss": 0.22753380239009857,
+    "epochs_executed": 40,
+    "threshold": 0.29115110635757446,
+    "validation_normal_above_threshold_pct": 5.0
+}
