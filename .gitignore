@@ -12,3 +12,7 @@ __pycache__/
 Thumbs.db
 
 .streamlit/secrets.toml
+
+# PyInstaller
+build/
+dist/
