@@ -1,584 +1,593 @@
-#  UPX 2.0 — Plataforma de Manutenção Preditiva
+# UPX 2.0 --- Plataforma de Manutenção Preditiva
 
-Projeto de **manutenção preditiva e prognóstico** desenvolvido em Python e Streamlit com o dataset **NASA C-MAPSS FD001**.
+A **UPX 2.0** é uma plataforma modular de manutenção preditiva
+desenvolvida em Python, com interface em Streamlit e modelos de Machine
+Learning aplicados a séries temporais de sensores.
 
-A aplicação combina modelos de Machine Learning para estimar **Remaining Useful Life (RUL)**, detectar **anomalias**, acompanhar a **tendência de degradação**, calcular um **Health Score** e gerar uma **prioridade operacional de manutenção** para cada equipamento.
+A plataforma reúne dois módulos de análise --- **NASA C-MAPSS** e
+**Automotivo** --- além de um **Normalizador Inteligente de
+Telemetria**, responsável por interpretar e padronizar arquivos CSV
+provenientes de diferentes fontes.
 
+## Visão geral
 
+A arquitetura foi organizada para que cada domínio possua seus próprios
+dados, sensores, modelos e critérios de análise.
 
----
-
-##  Objetivo
-
-Transformar séries temporais de sensores em informações úteis para manutenção, respondendo perguntas como:
-
-- Qual equipamento apresenta pior condição?
-- Qual possui menor vida útil remanescente estimada?
-- Existem sinais de comportamento anômalo?
-- A degradação está aumentando?
-- Qual equipamento deve ser priorizado para manutenção?
-
-Fluxo geral:
-
-```text
-Sensores
-   ↓
-Pré-processamento
-   ↓
-┌───────────────┬─────────────────────┐
-│ LSTM RUL      │ LSTM Autoencoder    │
-└───────┬───────┴──────────┬──────────┘
-        │                  │
-        │             Anomaly Score
-        │                  │
-        │              Trend Score
-        │                  │
-        └────────┬─────────┘
-                 ↓
-            Health Score
-                 ↓
-               Status
-                 ↓
-           Priority Score
-                 ↓
-          P1 / P2 / P3 / P4
-                 ↓
-              Dashboard
+``` text
+                         UPX 2.0
+                            │
+          ┌─────────────────┴─────────────────┐
+          │                                   │
+  NASA C-MAPSS                         Automotivo
+          │                                   │
+  Prognóstico de RUL                  Telemetria veicular
+  Detecção de anomalias               Detecção de anomalias
+  Tendência de degradação             Health Score
+  Health Score                        Análise de sessões
+  Prioridade de manutenção                    │
+          │                                   │
+          └──────────────┬────────────────────┘
+                         │
+                  Dashboard Streamlit
 ```
 
----
+## Módulo NASA C-MAPSS
 
-##  Modelos utilizados
+O módulo NASA utiliza o subconjunto **FD001 do C-MAPSS**, composto por
+séries temporais de motores turbofan simulados.
 
-### 1. RUL — Remaining Useful Life
+O pipeline combina prognóstico e detecção de anomalias para acompanhar a
+evolução da condição dos equipamentos.
 
-O modelo principal de prognóstico utiliza uma **LSTM** para estimar a quantidade de ciclos restantes do equipamento.
+``` text
+Sensores do motor
+       ↓
+Pré-processamento
+       ↓
+Janelas temporais
+       ↓
+┌──────────────────┬────────────────────┐
+│ LSTM para RUL    │ LSTM Autoencoder   │
+└────────┬─────────┴─────────┬──────────┘
+         │                   │
+   RUL estimado        Anomaly Score
+                             ↓
+                        Trend Score
+         └───────────┬───────┘
+                     ↓
+                Health Score
+                     ↓
+                   Status
+                     ↓
+               Priority Score
+                     ↓
+              P1 / P2 / P3 / P4
+                     ↓
+                  Dashboard
+```
+
+### RUL --- Remaining Useful Life
+
+O modelo de prognóstico utiliza uma **LSTM** para estimar a vida útil
+remanescente do motor em ciclos.
 
 Configuração principal:
 
-- Dataset: NASA C-MAPSS FD001
-- Modelo: LSTM
-- Janela temporal: 30 ciclos
-- Sensores utilizados: 14
-- Target de treinamento: RUL capped em 125 ciclos
-- Saída: RUL estimado em ciclos
+-   dataset: NASA C-MAPSS FD001;
+-   janela temporal: 30 ciclos;
+-   14 sensores selecionados;
+-   target de treinamento com RUL limitado a 125 ciclos;
+-   saída: RUL estimado em ciclos;
+-   desempenho de teste: MAE de aproximadamente 11,14 ciclos e RMSE de
+    aproximadamente 15,10 ciclos.
 
-Resultado integrado:
+Os 14 sensores utilizados são:
 
-- **MAE:** aproximadamente `11.123 ciclos`
-- **RMSE:** aproximadamente `15.079 ciclos`
-
-
-### 2. Detecção de anomalias
-
-A detecção de anomalia utiliza um **LSTM Autoencoder**. O modelo aprende uma região proxy de comportamento saudável e mede o erro de reconstrução das janelas futuras.
-
-Durante o desenvolvimento, a região saudável foi definida por:
-
-```text
-RUL linear > 125 ciclos
+``` text
+sensor_2   sensor_3   sensor_4   sensor_7
+sensor_8   sensor_9   sensor_11  sensor_12
+sensor_13  sensor_14  sensor_15  sensor_17
+sensor_20  sensor_21
 ```
 
-Na inferência, o Autoencoder recebe **somente dados dos sensores**.
+### Detecção de anomalias
 
-O erro de reconstrução é convertido em:
+Um **LSTM Autoencoder** aprende o padrão de comportamento de referência
+dos sensores. Durante a análise, o erro de reconstrução é convertido em
+um **Anomaly Score de 0 a 100**.
 
-```text
-Anomaly Score: 0 → 100
-```
+Quanto maior o valor, maior o desvio observado em relação ao padrão
+aprendido.
 
-Quanto maior o score, maior o desvio em relação ao comportamento saudável aprendido.
+### Trend Score
 
-### 3. Trend Score
+O Trend Score acompanha a evolução recente do erro de reconstrução e
+identifica se o comportamento anômalo está aumentando ao longo do tempo.
 
-A tendência é calculada a partir do erro de reconstrução recente do Autoencoder.
+O cálculo utiliza 10 janelas consecutivas e uma regressão linear sobre a
+evolução do erro.
 
-São usadas **10 janelas consecutivas** e uma regressão linear sobre:
+### Health Score
 
-```text
-erro de reconstrução × ciclo
-```
+O Health Score consolida os indicadores do módulo NASA em uma escala de
+0 a 100:
 
-O slope é convertido em:
-
-```text
-Trend Score: 0 → 100
-```
-
-Valores maiores representam uma tendência de piora mais intensa.
-
----
-
-##  Health Score
-
-O Health Score representa a condição técnica combinada do equipamento.
-
-```text
-0   = pior condição
-100 = melhor condição
-```
-
-Fórmula:
-
-```text
-Health =
+``` text
+Health Score =
 0.60 × RUL Score
 + 0.25 × (100 - Anomaly Score)
 + 0.15 × (100 - Trend Score)
 ```
 
-| Health Score | Status |
-|---|---|
-| 80–100 | 🟢 SAUDÁVEL |
-| 60–79.99 | 🟡 ATENÇÃO |
-| 30–59.99 | 🟠 RISCO |
-| 0–29.99 | 🔴 CRÍTICO |
+  Health Score   Condição
+  -------------- ----------
+  80--100        Saudável
+  60--79,99      Atenção
+  30--59,99      Risco
+  0--29,99       Crítico
 
----
+### Prioridade de manutenção
 
-##  Priority Score
+O Priority Score combina o risco associado ao Health Score e ao RUL:
 
-O Priority Score representa **urgência operacional de manutenção**.
-
-```text
+``` text
 Health Risk = 100 - Health Score
 RUL Risk    = 100 - RUL Score
-```
 
-```text
 Priority Score =
 0.30 × Health Risk
 + 0.70 × RUL Risk
 ```
 
-| Priority Score | Classe |
-|---|---|
-| < 20 | 🟢 P4 — BAIXA |
-| 20 a < 45 | 🟡 P3 — MÉDIA |
-| 45 a < 75 | 🟠 P2 — ALTA |
-| ≥ 75 | 🔴 P1 — IMEDIATA |
+  Priority Score   Prioridade
+  ---------------- -----------------
+  \< 20            P4 --- Baixa
+  20 a \< 45       P3 --- Média
+  45 a \< 75       P2 --- Alta
+  ≥ 75             P1 --- Imediata
 
----
+O dashboard permite visualizar a condição geral da frota, rankings de
+prioridade e análises individuais dos motores.
 
-##  Dashboard Streamlit
+------------------------------------------------------------------------
 
-A interface possui três áreas principais:
+## Módulo Automotivo
 
-###  Dashboard Geral
+O módulo Automotivo trabalha com séries temporais de telemetria veicular
+e utiliza um **Autoencoder** treinado sobre dados de operação de
+referência.
 
-Exibe:
+Diferentemente do módulo NASA, o módulo Automotivo **não estima RUL**.
+Seu objetivo é identificar desvios multivariados no comportamento da
+telemetria e apresentar indicadores de condição.
 
-- quantidade total de motores;
-- análises completas e parciais;
-- equipamentos críticos;
-- prioridades P1;
-- Health Score médio;
-- distribuição por condição;
-- distribuição por prioridade;
-- ranking dos equipamentos mais urgentes;
-- identificação separada de equipamentos com análise parcial.
+``` text
+Telemetria automotiva
+        ↓
+Validação do contrato de entrada
+        ↓
+Janelas de 30 segundos
+        ↓
+Autoencoder
+        ↓
+Erro de reconstrução
+        ↓
+Anomaly Score
+        ↓
+Health Score
+        ↓
+Dashboard
+```
 
-###  Análise do Motor
+O modelo trabalha com frequência esperada de **1 Hz**, janela temporal
+de **30 amostras** e as seguintes oito variáveis:
 
-Permite selecionar um motor individual e visualizar:
+  Feature             Grandeza
+  ------------------- -----------------------------------------
+  `rpm`               Rotação do motor
+  `speed_kmh`         Velocidade em km/h
+  `coolant_temp_c`    Temperatura do líquido de arrefecimento
+  `engine_load_pct`   Carga do motor
+  `throttle_pct`      Posição do acelerador
+  `intake_temp_c`     Temperatura do ar de admissão
+  `map_kpa`           Pressão absoluta do coletor
+  `battery_voltage`   Tensão elétrica
 
-- RUL estimado;
-- Health Score;
-- Status;
-- Priority Score;
-- Classe de prioridade;
-- RUL Score;
-- Anomaly Score;
-- Trend Score;
-- interpretação operacional;
-- composição do Health Score;
-- evolução temporal dos indicadores;
-- gráficos dos sensores;
-- posição no ranking da frota;
-- dados técnicos completos.
+A página Automotivo permite utilizar dados simulados ou importar sessões
+em CSV. Cada arquivo é tratado como uma sessão independente para evitar
+a criação de janelas artificiais entre viagens diferentes.
 
-###  Modelo e Metodologia
+------------------------------------------------------------------------
 
-Apresenta:
+## Normalizador Inteligente de Telemetria --- V7.5
 
-- arquitetura do pipeline;
-- modelos utilizados;
-- fórmulas;
-- métricas;
-- critérios de classificação;
-- limitações do sistema.
+Scanners automotivos e aplicativos de aquisição podem exportar a mesma
+grandeza com nomes, unidades e frequências diferentes. O normalizador
+funciona como uma camada entre esses arquivos e o contrato utilizado
+pelo módulo Automotivo.
 
----
+``` text
+CSV bruto do scanner
+        ↓
+Limpeza estrutural
+        ↓
+Inventário dos sensores
+        ↓
+Identificação das grandezas físicas
+        ↓
+Mapeamento de aliases e unidades
+        ↓
+Comparação de fontes disponíveis
+        ↓
+Conversões de unidade
+        ↓
+Perfil de scanner / confirmação humana
+        ↓
+Regularização temporal conservadora em 1 Hz
+        ↓
+Validação das 8 features
+        ↓
+CSV padronizado para a UPX 2.0
+```
 
-##  Estrutura do projeto
+### O que o normalizador faz
 
-```text
+O normalizador é capaz de:
+
+-   detectar e remover cabeçalhos repetidos no meio do arquivo;
+-   identificar colunas temporais;
+-   construir um inventário das colunas e sensores encontrados;
+-   reconhecer aliases conhecidos;
+-   classificar grandezas físicas;
+-   validar unidades;
+-   aplicar conversões conhecidas, como m/s para km/h;
+-   comparar múltiplas fontes fisicamente compatíveis para a mesma
+    feature;
+-   solicitar confirmação quando existe uma alternativa válida que
+    altera a fonte utilizada;
+-   memorizar associações confirmadas em perfis de scanner;
+-   reutilizar posteriormente uma associação salva, desde que ela
+    continue fisicamente válida;
+-   construir uma grade temporal conservadora de 1 Hz;
+-   consolidar múltiplas medições reais do mesmo segundo pela mediana;
+-   manter intervalos sem observação como ausentes;
+-   verificar a disponibilidade das oito features exigidas pelo modelo;
+-   calcular quantas janelas completas de 30 segundos podem ser
+    utilizadas.
+
+O normalizador **não preenche automaticamente sensores inexistentes**.
+Se uma variável exigida pelo modelo não foi coletada, ela permanece
+ausente e a inferência é bloqueada até existir uma janela válida.
+
+### Perfis de scanner
+
+Quando existem duas fontes válidas para a mesma variável, o sistema pode
+apresentar a fonte atual e a alternativa tecnicamente preferida.
+
+Exemplo:
+
+``` text
+Speed (GPS)(km/h)
+        │
+        ├── 94,63% de dados válidos
+        │
+        └── unidade nativa: km/h
+
+GPS Speed (Meters/second)
+        │
+        ├── 100% de dados válidos
+        │
+        └── conversão: m/s × 3,6 → km/h
+```
+
+Após uma confirmação explícita, a associação pode ser armazenada em
+`perfis_scanner.json`. Em arquivos futuros com o mesmo perfil
+estrutural, a fonte confirmada pode ser reutilizada sem uma nova
+pergunta, passando novamente pelas validações físicas antes de ser
+aplicada.
+
+### Arquivos gerados
+
+Para um arquivo como:
+
+``` text
+viagem.csv
+```
+
+o normalizador pode gerar:
+
+``` text
+viagem_normalizado_upx.csv
+viagem_regularizado_1hz_upx.csv
+```
+
+O arquivo `_normalizado_upx.csv` contém as features reconhecidas e
+convertidas antes da regularização temporal.
+
+O arquivo `_regularizado_1hz_upx.csv` contém a grade temporal de 1 Hz e
+é o resultado preparado para a validação do contrato do módulo
+Automotivo.
+
+### Como executar o normalizador
+
+Na raiz do projeto, com o ambiente virtual ativo:
+
+``` bash
+python ferramentas/normalizador_telemetria/normalizador_v7_trabalho.py
+```
+
+No Windows também pode ser executado com:
+
+``` bat
+.venv\Scripts\python.exe "ferramentas\normalizador_telemetria\normalizador_v7_trabalho.py"
+```
+
+O programa solicitará o caminho de um arquivo CSV ou de uma pasta
+contendo arquivos CSV.
+
+------------------------------------------------------------------------
+
+## Fluxo completo de dados automotivos
+
+O normalizador e o módulo Automotivo possuem responsabilidades
+diferentes:
+
+``` text
+Scanner / aplicativo de telemetria
+              ↓
+          CSV bruto
+              ↓
+      Normalizador V7.5
+              ↓
+   CSV padronizado em 1 Hz
+              ↓
+   Validação das 8 features
+              ↓
+       ┌──────┴──────┐
+       │             │
+  Compatível     Incompleto
+       │             │
+       ↓             ↓
+  Autoencoder    Diagnóstico das
+       ↓         features ausentes
+ Anomaly Score
+       ↓
+ Health Score
+       ↓
+   Dashboard
+```
+
+Assim, um CSV pode ser corretamente interpretado pelo normalizador e
+ainda não possuir todos os sensores necessários para o modelo. Nesse
+caso, o arquivo traduzido continua útil para inspeção e diagnóstico dos
+dados disponíveis, mas não é enviado para inferência.
+
+------------------------------------------------------------------------
+
+## Dashboard Streamlit
+
+A interface principal é executada em Streamlit e organiza os recursos em
+módulos.
+
+### NASA C-MAPSS
+
+Apresenta visão geral dos motores, indicadores de condição, prioridades,
+rankings, gráficos temporais e análise individual.
+
+### Automotivo
+
+Permite trabalhar com simulação ou importação de CSV, analisar sessões
+independentes e visualizar os resultados produzidos pelo pipeline
+automotivo.
+
+------------------------------------------------------------------------
+
+## Tecnologias utilizadas
+
+-   **Python 3.11**
+-   **Streamlit** --- interface e dashboards
+-   **TensorFlow / Keras** --- redes neurais
+-   **LSTM** --- prognóstico temporal de RUL
+-   **LSTM Autoencoder / Autoencoder** --- detecção de anomalias
+-   **scikit-learn** --- pré-processamento e métricas
+-   **Pandas** --- manipulação e normalização dos dados
+-   **NumPy** --- processamento numérico
+-   **Matplotlib / Altair** --- visualização
+-   **Joblib** --- persistência de componentes de pré-processamento
+-   **PyInstaller** --- distribuição da aplicação para Windows
+-   **NASA C-MAPSS FD001** --- base utilizada pelo módulo de prognóstico
+
+------------------------------------------------------------------------
+
+## Estrutura principal do projeto
+
+``` text
 UPX 2.0/
 │
 ├── app/
-│   └── app.py
+│   ├── app.py
+│   └── paginas/
+│       ├── 01_nasa_cmapss.py
+│       └── 02_automotivo.py
 │
 ├── datasets/
 │   └── CMAPSSData/
-│       ├── train_FD001.txt
-│       ├── test_FD001.txt
-│       └── RUL_FD001.txt
+│
+├── ferramentas/
+│   └── normalizador_telemetria/
+│       ├── normalizador_v7_trabalho.py
+│       ├── sensores.json
+│       └── perfis_scanner.json
 │
 ├── modelo/
-│   ├── fd001/
 │   ├── fd001_capped125/
 │   ├── fd001_anomalia/
-│   └── fd001_final/
+│   ├── fd001_final/
+│   └── automotivo_anomalia/
 │
 ├── resultados/
-│   ├── fd001_anomalia/
-│   ├── fd001_tendencia/
 │   └── fd001_pipeline_integrado/
 │
-├── treino/
-│   ├── treino_fd001.py
-│   └── treino_fd001_capped125.py
-│
 ├── utils/
-│   └── pipeline_fd001.py
+│   ├── pipeline_fd001.py
+│   └── pipeline_automotivo.py
 │
+├── distribuicao/
+│   └── launcher.py
+│
+├── Iniciar_Plataforma.bat
 ├── requirements.txt
+├── UPX_2_0.spec
 └── README.md
 ```
 
----
+------------------------------------------------------------------------
 
-##  Requisitos
+## Como executar o projeto
 
-Recomendado:
+### Opção rápida no Windows
 
-```text
-Python 3.11
+Com o repositório já configurado, execute:
+
+``` text
+Iniciar_Plataforma.bat
 ```
 
-Ambiente validado no desenvolvimento:
+O script utiliza o Python do ambiente virtual e inicia a interface
+Streamlit.
 
-```text
-Python 3.11.7
-numpy 2.4.6
-pandas 3.0.5
-scikit-learn 1.7.2
-joblib 1.6.0
-tensorflow 2.21.0
-tf-keras 2.21.0
-streamlit 1.63.0
-matplotlib 3.11.1
+### Execução manual
+
+Clone o repositório:
+
+``` bash
+git clone https://github.com/MarceloDuraesLemos/ManutencaoPreditiva.git
+cd ManutencaoPreditiva
 ```
 
-O Streamlit instala dependências adicionais usadas pela interface, incluindo Altair.
+Crie o ambiente virtual:
 
----
-
-##  Como executar
-
-### 1. Clonar o repositório
-
-```bash
-git clone URL_DO_SEU_REPOSITORIO
-```
-
-Entre na pasta:
-
-```bash
-cd "UPX 2.0"
-```
-
-### 2. Criar um ambiente virtual
-
-#### Windows
-
-```bash
+``` bat
 py -3.11 -m venv .venv
-```
-
-Ativar:
-
-```bash
 .venv\Scripts\activate
 ```
 
-#### Linux / macOS
+Instale as dependências:
 
-```bash
-python3.11 -m venv .venv
-source .venv/bin/activate
-```
-
-### 3. Instalar as dependências
-
-```bash
+``` bash
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-### 4. Verificar arquivos necessários
+Inicie a plataforma:
 
-Confirme a existência de:
-
-```text
-datasets/CMAPSSData/test_FD001.txt
-
-modelo/fd001_capped125/modelo_rul_convertido.keras
-modelo/fd001_capped125/scaler.pkl
-modelo/fd001_capped125/config.json
-
-modelo/fd001_anomalia/modelo_autoencoder_convertido.keras
-modelo/fd001_anomalia/scaler.pkl
-modelo/fd001_anomalia/config.json
-
-modelo/fd001_final/config_pipeline.json
-
-resultados/fd001_pipeline_integrado/resultados_100_motores.csv
-resultados/fd001_pipeline_integrado/ranking_prioridade.csv
+``` bash
+python -m streamlit run app/app.py
 ```
 
-### 5. Executar o dashboard
+O navegador será aberto com a interface da UPX 2.0.
 
-Na raiz do projeto:
+------------------------------------------------------------------------
 
-```bash
-streamlit run app/app.py
+## Utilização
+
+### NASA C-MAPSS
+
+1.  Abra o módulo **NASA C-MAPSS**.
+2.  Consulte o dashboard geral ou selecione um motor.
+3.  Analise RUL, condição, anomalias, tendência e prioridade.
+4.  Utilize os gráficos e dados técnicos para acompanhar a evolução
+    temporal.
+
+### Automotivo com dados compatíveis
+
+1.  Abra o módulo **Automotivo**.
+2.  Selecione **Simulação** ou **Importar CSV**.
+3.  Para CSV, utilize um arquivo que contenha as oito features exigidas
+    pelo modelo.
+4.  Execute a análise.
+5.  Consulte os indicadores e gráficos da sessão.
+
+### Automotivo com CSV de scanner externo
+
+``` text
+CSV do scanner
+      ↓
+Normalizador V7.5
+      ↓
+*_regularizado_1hz_upx.csv
+      ↓
+Módulo Automotivo
 ```
 
-No Windows também pode ser usado:
+1.  Execute o normalizador.
+2.  Informe o CSV bruto ou uma pasta de CSVs.
+3.  Revise eventuais decisões de fonte apresentadas.
+4.  Utilize o arquivo `_regularizado_1hz_upx.csv` gerado.
+5.  Importe o arquivo no módulo Automotivo.
+6.  Se todas as oito features e uma janela válida estiverem disponíveis,
+    o arquivo poderá seguir para o modelo.
+7.  Se faltarem sensores, a análise é interrompida sem criar medições
+    artificiais.
 
-```bash
-streamlit run app\app.py
+------------------------------------------------------------------------
+
+## Distribuição para Windows
+
+O projeto possui configuração de empacotamento com **PyInstaller**.
+
+A distribuição é gerada no formato `onedir`, mantendo o executável e
+suas dependências no mesmo diretório:
+
+``` text
+dist/
+└── UPX_2_0/
+    ├── UPX_2_0.exe
+    └── _internal/
 ```
 
-O Streamlit normalmente abrirá o navegador automaticamente. Caso isso não aconteça, o terminal mostrará o endereço local, geralmente:
+Para utilizar essa distribuição, deve ser mantida a pasta `UPX_2_0`
+completa. O executável não deve ser separado do diretório `_internal`.
 
-```text
-http://localhost:8501
-```
+------------------------------------------------------------------------
 
----
+## Arquitetura modular
 
-##  requirements.txt
+A UPX 2.0 foi estruturada para permitir que diferentes domínios utilizem
+modelos específicos:
 
-```text
-numpy==2.4.6
-pandas==3.0.5
-scikit-learn==1.7.2
-joblib==1.6.0
-tensorflow==2.21.0
-tf-keras==2.21.0
-streamlit==1.63.0
-matplotlib==3.11.1
-```
-
----
-
-##  Análises parciais
-
-RUL e anomalia precisam de pelo menos:
-
-```text
-30 ciclos
-```
-
-O Trend Score usa 10 janelas consecutivas. Por isso, uma análise completa precisa de aproximadamente:
-
-```text
-39 ciclos observados
-```
-
-Equipamentos com histórico menor podem ter RUL e Anomaly Score, mas não recebem Health Score nem Priority Score até existir histórico suficiente.
-
-São marcados como:
-
-```text
-ANALISE_PARCIAL
-```
-
----
-
-##  Sensores utilizados
-
-O pipeline utiliza 14 sensores do FD001:
-
-```text
-sensor_2
-sensor_3
-sensor_4
-sensor_7
-sensor_8
-sensor_9
-sensor_11
-sensor_12
-sensor_13
-sensor_14
-sensor_15
-sensor_17
-sensor_20
-sensor_21
-```
-
-Entrada temporal principal:
-
-```text
-30 ciclos × 14 sensores
-```
-
----
-
-##  Dataset NASA C-MAPSS FD001
-
-O FD001 é um dataset de simulação de degradação de motores turbofan.
-
-No módulo atual:
-
-- 100 trajetórias de treinamento;
-- 100 trajetórias de teste;
-- uma condição operacional principal;
-- um modo de degradação relacionado ao sistema HPC;
-- informações operacionais e 21 medições de sensores por observação.
-
-O projeto utiliza uma seleção de 14 sensores para os modelos atuais.
-
----
-
-##  Limitações
-
-- O FD001 possui apenas um modo de degradação.
-- O sistema não realiza diagnóstico universal de componentes.
-- Os ciclos do benchmark não devem ser interpretados diretamente como horas ou dias.
-- O modelo não deve ser utilizado diretamente em automóveis, trens, motores industriais ou outros ativos.
-- Cada novo domínio exige dados, treinamento, validação e calibração próprios.
-- Health Score e Priority Score são indicadores desenvolvidos para esta arquitetura.
-- Estimativas de RUL possuem erro e incerteza.
-- O projeto não substitui inspeção técnica ou sistemas certificados de manutenção.
-
----
-
-##  Arquitetura modular
-
-A proposta não é usar um único modelo para qualquer equipamento.
-
-```text
-Plataforma de Manutenção Preditiva
+``` text
+UPX 2.0
 │
-├── Módulo NASA C-MAPSS
-│   ├── Modelo RUL
-│   ├── Modelo de anomalia
-│   ├── Trend Score
+├── NASA C-MAPSS
+│   ├── RUL
+│   ├── Anomalias
+│   ├── Tendência
 │   ├── Health Score
-│   └── Priority Score
+│   └── Prioridade
 │
-├── Futuro módulo automotivo
-│   └── Telemetria OBD-II / ELM327
+├── Automotivo
+│   ├── Telemetria
+│   ├── Autoencoder
+│   ├── Anomalias
+│   └── Health Score
 │
-└── Futuros módulos industriais
-    └── Modelos específicos por domínio
+└── Normalizador de Telemetria
+    ├── Inventário de sensores
+    ├── Mapeamento físico
+    ├── Conversão de unidades
+    ├── Perfis de scanner
+    └── Regularização temporal
 ```
 
-Cada domínio deve possuir seus próprios sensores, modelos e calibrações.
+Novos domínios podem ser adicionados mantendo modelos, sensores e
+critérios próprios, sem reutilizar automaticamente modelos treinados
+para equipamentos diferentes.
 
----
+------------------------------------------------------------------------
 
-##  Possíveis extensões
+## UPX 2.0
 
-- integração com telemetria real via OBD-II / ELM327;
-- aquisição de dados de veículos reais;
-- integração com banco de dados;
-- dashboard de frota em tempo real;
-- ordens de manutenção;
-- simulação de custos e impacto operacional;
-- novos datasets C-MAPSS;
-- módulos ferroviários ou industriais;
-- explicabilidade avançada;
-- intervalo de confiança para RUL;
-- implantação em nuvem.
-
----
-
-##  Metodologia resumida
-
-```text
-FD001
- ↓
-Parsing correto das colunas
- ↓
-Seleção dos sensores
- ↓
-Separação por motores
- ↓
-Normalização
- ↓
-Janelas temporais de 30 ciclos
- ↓
-LSTM de RUL
- +
-LSTM Autoencoder
- ↓
-Anomaly Score
- ↓
-Trend Score
- ↓
-Health Score
- ↓
-Status
- ↓
-Priority Score
- ↓
-Ranking operacional
- ↓
-Dashboard Streamlit
-```
-
-
-
-##  Execução rápida no Windows
-
-```bash
-git clone https://github.com/MarceloDuraesLemos/ManutencaoPreditiva.git
-cd "ManutencaoPreditiva"
-
-py -3.11 -m venv .venv
-.venv\Scripts\activate
-
-pip install -r requirements.txt
-
-streamlit run app/app.py
-```
-
----
-
-##  Tecnologias
-
-- Python
-- TensorFlow / Keras
-- LSTM
-- LSTM Autoencoder
-- NumPy
-- Pandas
-- Scikit-learn
-- Streamlit
-- Altair
-- Matplotlib
-- NASA C-MAPSS
-
----
-
-##  Contexto acadêmico
-
-Este projeto foi desenvolvido como uma plataforma para demonstração de técnicas de:
-
-- manutenção preditiva;
-- prognóstico;
-- detecção de anomalias;
-- análise temporal;
-- apoio à decisão de manutenção.
-
-O foco atual é o módulo **NASA C-MAPSS FD001**.
-
----
-
-##  UPX 2.0
-
-**Plataforma modular de manutenção preditiva baseada em dados, Machine Learning e análise de degradação.**
+**Plataforma modular de manutenção preditiva baseada em séries
+temporais, Machine Learning, prognóstico e detecção de anomalias.**

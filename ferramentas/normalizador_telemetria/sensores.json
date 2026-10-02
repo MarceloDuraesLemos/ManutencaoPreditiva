@@ -1,0 +1,433 @@
+{
+  "versao": "1.0",
+  "descricao": "Catalogo de sensores e grandezas para normalizacao de telemetria automotiva da UPX 2.0",
+
+  "features": {
+    "rpm": {
+      "descricao": "Rotacao do motor",
+      "grandeza": "velocidade_rotacional",
+      "unidade_padrao": "rpm",
+
+      "aliases": [
+        "rpm",
+        "engine rpm",
+        "engine speed",
+        "engine rotational speed",
+        "motor rpm",
+        "motor speed",
+        "engine revolution",
+        "engine revolutions",
+        "crankshaft speed",
+        "rotacao motor",
+        "rotacao do motor"
+      ],
+
+      "unidades_aceitas": [
+        "rpm",
+        "rev/min",
+        "r/min"
+      ],
+
+      "termos_positivos": [
+        "rpm",
+        "engine",
+        "motor",
+        "speed",
+        "rotation",
+        "rotational",
+        "revolution",
+        "crankshaft",
+        "rotacao"
+      ],
+
+      "termos_negativos": [
+        "torque",
+        "load",
+        "power",
+        "kw",
+        "horsepower",
+        "hp",
+        "temperature",
+        "pressure",
+        "voltage"
+      ],
+
+      "faixa_plausivel": {
+        "min": 0,
+        "max": 12000
+      }
+    },
+
+    "speed_kmh": {
+      "descricao": "Velocidade do veiculo",
+      "grandeza": "velocidade_linear",
+      "unidade_padrao": "km/h",
+
+      "aliases": [
+        "speed",
+        "vehicle speed",
+        "vehicle speed km/h",
+        "gps speed",
+        "speed gps",
+        "speed gps km/h",
+        "gps speed km/h",
+        "velocidade",
+        "velocidade veiculo",
+        "velocidade do veiculo"
+      ],
+
+      "unidades_aceitas": [
+        "km/h",
+        "kmh",
+        "kph",
+        "mph",
+        "m/s"
+      ],
+
+      "termos_positivos": [
+        "speed",
+        "vehicle",
+        "gps",
+        "velocidade"
+      ],
+
+      "termos_negativos": [
+        "engine speed",
+        "rpm",
+        "rotation",
+        "rotational",
+        "crankshaft",
+        "temperature",
+        "pressure",
+        "voltage"
+      ],
+
+      "faixa_plausivel": {
+        "min": 0,
+        "max": 400
+      },
+
+      "conversoes": {
+        "mph": {
+          "operacao": "multiplicar",
+          "valor": 1.609344
+        },
+
+        "m/s": {
+          "operacao": "multiplicar",
+          "valor": 3.6
+        }
+      }
+    },
+
+    "coolant_temp_c": {
+      "descricao": "Temperatura do liquido de arrefecimento do motor",
+      "grandeza": "temperatura",
+      "subtipo": "coolant",
+      "unidade_padrao": "C",
+
+      "aliases": [
+        "coolant temperature",
+        "coolant temp",
+        "engine coolant temperature",
+        "engine coolant temp",
+        "ect",
+        "temperatura coolant",
+        "temperatura arrefecimento",
+        "temperatura do liquido de arrefecimento"
+      ],
+
+      "unidades_aceitas": [
+        "C",
+        "F"
+      ],
+
+      "termos_positivos": [
+        "coolant",
+        "engine coolant",
+        "ect",
+        "arrefecimento"
+      ],
+
+      "termos_negativos": [
+        "intake",
+        "ambient",
+        "catalyst",
+        "exhaust",
+        "charge air",
+        "cact",
+        "oil",
+        "transmission"
+      ],
+
+      "faixa_plausivel": {
+        "min": -50,
+        "max": 150
+      },
+
+      "conversoes": {
+        "F": {
+          "operacao": "fahrenheit_para_celsius"
+        }
+      }
+    },
+
+    "engine_load_pct": {
+      "descricao": "Carga calculada do motor",
+      "grandeza": "percentual",
+      "subtipo": "engine_load",
+      "unidade_padrao": "%",
+
+      "aliases": [
+        "engine load",
+        "calculated engine load",
+        "calculated load value",
+        "engine load percent",
+        "carga motor",
+        "carga do motor"
+      ],
+
+      "unidades_aceitas": [
+        "%"
+      ],
+
+      "termos_positivos": [
+        "engine",
+        "load",
+        "calculated",
+        "carga"
+      ],
+
+      "termos_negativos": [
+        "absolute load",
+        "torque",
+        "throttle",
+        "pedal",
+        "temperature",
+        "pressure",
+        "voltage"
+      ],
+
+      "faixa_plausivel": {
+        "min": 0,
+        "max": 100
+      }
+    },
+
+    "throttle_pct": {
+      "descricao": "Posicao da borboleta do acelerador",
+      "grandeza": "percentual",
+      "subtipo": "throttle",
+      "unidade_padrao": "%",
+
+      "aliases": [
+        "throttle",
+        "throttle position",
+        "absolute throttle position",
+        "throttle position percent",
+        "throttle position sensor",
+        "posicao borboleta",
+        "posicao da borboleta",
+        "posicao acelerador"
+      ],
+
+      "unidades_aceitas": [
+        "%"
+      ],
+
+      "termos_positivos": [
+        "throttle",
+        "throttle position",
+        "borboleta"
+      ],
+
+      "termos_negativos": [
+        "accelerator pedal",
+        "pedal position",
+        "engine load",
+        "torque",
+        "temperature",
+        "pressure"
+      ],
+
+      "faixa_plausivel": {
+        "min": 0,
+        "max": 100
+      }
+    },
+
+    "intake_temp_c": {
+      "descricao": "Temperatura do ar de admissao",
+      "grandeza": "temperatura",
+      "subtipo": "intake_air",
+      "unidade_padrao": "C",
+
+      "aliases": [
+        "intake air temperature",
+        "intake air temp",
+        "intake temperature",
+        "intake temp",
+        "iat",
+        "air intake temperature",
+        "temperatura ar admissao",
+        "temperatura do ar de admissao"
+      ],
+
+      "unidades_aceitas": [
+        "C",
+        "F"
+      ],
+
+      "termos_positivos": [
+        "intake",
+        "air",
+        "iat",
+        "admissao"
+      ],
+
+      "termos_negativos": [
+        "coolant",
+        "ect",
+        "charge air cooler",
+        "cact",
+        "ambient",
+        "catalyst",
+        "exhaust",
+        "oil",
+        "transmission"
+      ],
+
+      "faixa_plausivel": {
+        "min": -50,
+        "max": 120
+      },
+
+      "conversoes": {
+        "F": {
+          "operacao": "fahrenheit_para_celsius"
+        }
+      }
+    },
+
+    "map_kpa": {
+      "descricao": "Pressao absoluta do coletor de admissao",
+      "grandeza": "pressao",
+      "subtipo": "manifold_absolute_pressure",
+      "unidade_padrao": "kPa",
+
+      "aliases": [
+        "map",
+        "map pressure",
+        "manifold absolute pressure",
+        "intake manifold absolute pressure",
+        "intake manifold pressure",
+        "manifold pressure",
+        "pressao absoluta coletor",
+        "pressao absoluta do coletor",
+        "pressao coletor"
+      ],
+
+      "unidades_aceitas": [
+        "kPa",
+        "Pa",
+        "bar",
+        "psi"
+      ],
+
+      "termos_positivos": [
+        "map",
+        "manifold",
+        "absolute",
+        "pressure",
+        "intake",
+        "coletor",
+        "pressao"
+      ],
+
+      "termos_negativos": [
+        "fuel pressure",
+        "oil pressure",
+        "barometric",
+        "baro",
+        "boost",
+        "tire",
+        "temperature",
+        "voltage"
+      ],
+
+      "faixa_plausivel": {
+        "min": 0,
+        "max": 300
+      },
+
+      "conversoes": {
+        "Pa": {
+          "operacao": "dividir",
+          "valor": 1000
+        },
+
+        "bar": {
+          "operacao": "multiplicar",
+          "valor": 100
+        },
+
+        "psi": {
+          "operacao": "multiplicar",
+          "valor": 6.894757293
+        }
+      }
+    },
+
+    "battery_voltage": {
+      "descricao": "Tensao eletrica do sistema",
+      "grandeza": "tensao",
+      "unidade_padrao": "V",
+
+      "aliases": [
+        "battery voltage",
+        "battery volts",
+        "vehicle voltage",
+        "system voltage",
+        "control module voltage",
+        "obd adapter voltage",
+        "voltage obd adapter",
+        "tensao bateria",
+        "tensao da bateria"
+      ],
+
+      "unidades_aceitas": [
+        "V",
+        "mV"
+      ],
+
+      "termos_positivos": [
+        "voltage",
+        "volt",
+        "battery",
+        "obd",
+        "tensao"
+      ],
+
+      "termos_negativos": [
+        "temperature",
+        "pressure",
+        "load",
+        "torque",
+        "current",
+        "ampere"
+      ],
+
+      "faixa_plausivel": {
+        "min": 0,
+        "max": 30
+      },
+
+      "conversoes": {
+        "mV": {
+          "operacao": "dividir",
+          "valor": 1000
+        }
+      }
+    }
+  }
+}
